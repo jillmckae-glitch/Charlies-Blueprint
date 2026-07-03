@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>The Blueprint — Charlie McKae</title>
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Teko:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+:root{
+  --bg:#0c1512;
+  --panel:#131f1a;
+  --panel-2:#1a2a22;
+  --line:#28382f;
+  --line-soft:#1f2c25;
+  --amber:#e8a23d;
+  --amber-dim:#a97426;
+  --amber-glow:rgba(232,162,61,.35);
+  --chalk:#f2efe3;
+  --muted:#7f9488;
+  --muted-2:#5a6b60;
+  --good:#7fbf8f;
+  --soft-red:#d9836f;
+  --radius:14px;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--chalk);}
+body{
+  font-family:'Inter',system-ui,-apple-system,sans-serif;
+  min-height:100vh;
+  min-height:100dvh;
+  padding-bottom:calc(72px + env(safe-area-inset-bottom));
+  background-image:
+    radial-gradient(circle at 15% 0%, rgba(232,162,61,.05), transparent 45%),
+    radial-gradient(circle at 100% 20%, rgba(127,148,136,.06), transparent 50%);
+}
+.mono{font-family:'JetBrains Mono',monospace;}
+.display{font-family:'Teko',sans-serif; font-weight:600; letter-spacing:.02em;}
+
+::-webkit-scrollbar{width:0;height:0;}
+
+/* ---------- HEADER / SCOREBOARD ---------- */
+header.top{
+  position:sticky; top:0; z-index:30;
+  background:linear-gradient(180deg, #0c1512 80%, rgba(12,21,18,0));
+  padding:calc(14px + env(safe-area-inset-top)) 18px 10px;
+}
+.eyebrow{
+  font-size:11px; letter-spacing:.22em; color:var(--amber); font-weight:700;
+  text-transform:uppercase; margin-bottom:2px;
+}
+.title-row{display:flex; align-items:baseline; justify-content:space-between; gap:10px; flex-wrap:wrap;}
+.title-row h1{
+  font-family:'Teko',sans-serif; font-weight:700; font-size:34px; line-height:1;
+  margin:0; letter-spacing:.01em; color:var(--chalk);
+}
+.title-row .sub{color:var(--muted); font-size:12.5px; margin-top:2px;}
+
+.scoreboard{
+  margin-top:12px; background:var(--panel); border:1px solid var(--line);
+  border-radius:var(--radius); padding:12px 14px; display:flex; align-items:center; gap:16px;
+}
+.sb-stat{text-align:center; flex:0 0 auto;}
+.sb-stat .num{font-family:'Teko',sans-serif; font-weight:700; font-size:30px; color:var(--amber); line-height:1; text-shadow:0 0 18px var(--amber-glow);}
+.sb-stat .lbl{font-size:9.5px; letter-spacing:.14em; color:var(--muted); text-transform:uppercase; margin-top:1px;}
+.sb-div{width:1px; align-self:stretch; background:var(--line);}
+.sb-dots{flex:1; display:flex; flex-wrap:wrap; gap:4px; align-items:center;}
+.sb-dot{width:8px; height:8px; border-radius:50%; background:var(--line-soft); border:1px solid var(--line);}
+.sb-dot.on{background:var(--amber); border-color:var(--amber); box-shadow:0 0 6px var(--amber-glow);}
+.sb-dot.today{outline:2px solid var(--chalk); outline-offset:1px;}
+
+/* ---------- NAV ---------- */
+nav.tabs{
+  position:fixed; bottom:0; left:0; right:0; z-index:40;
+  background:#0f1a15ee; backdrop-filter:blur(10px);
+  border-top:1px solid var(--line);
+  display:flex; padding:6px 8px calc(6px + env(safe-area-inset-bottom));
+}
+nav.tabs button{
+  flex:1; background:none; border:none; color:var(--muted); font-family:'Inter',sans-serif;
+  font-size:11px; font-weight:600; letter-spacing:.03em; padding:8px 4px 6px; border-radius:10px;
+  display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer;
+}
+nav.tabs button .ic{font-size:18px; line-height:1;}
+nav.tabs button.active{color:var(--amber);}
+nav.tabs button.active .ic{filter:drop-shadow(0 0 6px var(--amber-glow));}
+
+main{padding:14px 18px 30px; max-width:760px; margin:0 auto;}
+
+/* ---------- CARDS / SECTIONS ---------- */
+.card{
+  background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+  padding:16px; margin-bottom:14px;
+}
+.section-h{
+  display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;
+}
+.section-h h3{
+  font-family:'Teko',sans-serif; font-weight:600; font-size:20px; letter-spacing:.03em;
+  margin:0; color:var(--chalk); text-transform:uppercase;
+}
+.section-h .frac{font-size:12px; color:var(--muted); font-family:'JetBrains Mono',monospace;}
+
+.feel-row{display:flex; gap:8px; margin-top:2px;}
+.feel-btn{
+  flex:1; display:flex; flex-direction:column; align-items:center; gap:6px;
+  background:var(--panel-2); border:1px solid var(--line); border-radius:12px;
+  padding:12px 6px 10px; cursor:pointer; color:var(--muted);
+}
+.feel-btn svg{width:24px; height:24px; fill:var(--muted-2); transition:transform .15s;}
+.feel-btn .flbl{font-size:11px; font-weight:600; color:var(--muted); letter-spacing:.02em;}
+.feel-btn.active{background:rgba(232,162,61,.14); border-color:var(--amber);}
+.feel-btn.active svg{fill:var(--amber);}
+.feel-btn.active .flbl{color:var(--amber);}
+
+.swap-row{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  background:var(--panel-2); border:1px solid var(--line); border-radius:10px;
+  padding:9px 10px 9px 12px; margin-bottom:10px;
+}
+.swap-lbl{font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; font-weight:600; flex:0 0 auto;}
+select.swap-select{
+  flex:1; min-width:0; background:var(--panel); border:1px solid var(--line); color:var(--amber);
+  font-family:'Inter',sans-serif; font-size:13px; font-weight:600; border-radius:8px; padding:7px 8px;
+  -webkit-appearance:none; appearance:none;
+}
+select.swap-select:focus{outline:2px solid var(--amber);}
+
+.check-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;}
+.check-item{
+  display:flex; align-items:center; gap:11px; padding:9px 6px; border-radius:9px; cursor:pointer;
+  transition:background .15s;
+}
+.check-item:active{background:var(--panel-2);}
+.check-item .box{
+  flex:0 0 22px; width:22px; height:22px; border-radius:6px; border:2px solid var(--muted-2);
+  display:flex; align-items:center; justify-content:center; transition:.15s;
+}
+.check-item.done .box{background:var(--amber); border-color:var(--amber);}
+.check-item .box svg{width:13px; height:13px; opacity:0; transform:scale(.6); transition:.15s;}
+.check-item.done .box svg{opacity:1; transform:scale(1);}
+.check-item span.txt{font-size:14.5px; color:var(--chalk); line-height:1.35;}
+.check-item.done span.txt{color:var(--muted); text-decoration:line-through; text-decoration-color:var(--muted-2);}
+
+/* Today view */
+.day-nav{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; gap:10px;}
+.day-nav button.arrow{
+  background:var(--panel); border:1px solid var(--line); color:var(--amber); width:40px; height:40px;
+  border-radius:50%; font-size:18px; display:flex; align-items:center; justify-content:center; cursor:pointer;
+}
+.day-nav button.arrow:disabled{opacity:.25;}
+.day-nav .center{text-align:center; flex:1;}
+.day-nav .wk-tag{font-size:10.5px; letter-spacing:.12em; color:var(--amber); text-transform:uppercase; font-weight:700;}
+.day-nav .dow{font-family:'Teko',sans-serif; font-weight:700; font-size:26px; color:var(--chalk); line-height:1.1;}
+.day-nav .datestr{font-size:12px; color:var(--muted);}
+
+.mission-banner{
+  background:linear-gradient(135deg, var(--panel-2), var(--panel)); border:1px solid var(--line);
+  border-left:3px solid var(--amber); border-radius:12px; padding:14px 16px; margin-bottom:14px;
+}
+.mission-banner .m-eyebrow{font-size:10px; letter-spacing:.16em; color:var(--amber); text-transform:uppercase; font-weight:700; margin-bottom:4px;}
+.mission-banner p{margin:0; font-size:15px; color:var(--chalk); line-height:1.4; font-weight:500;}
+
+.ring-mini{
+  width:52px; height:52px; border-radius:50%; flex:0 0 52px; position:relative;
+  display:flex; align-items:center; justify-content:center;
+}
+.ring-mini .in{position:absolute; inset:5px; border-radius:50%; background:var(--panel); display:flex; align-items:center; justify-content:center; font-family:'Teko',sans-serif; font-weight:700; font-size:14px; color:var(--amber);}
+
+textarea.journal{
+  width:100%; background:var(--panel-2); border:1px solid var(--line); border-radius:10px;
+  color:var(--chalk); font-family:'Inter',sans-serif; font-size:14px; padding:10px 12px;
+  min-height:56px; resize:vertical; line-height:1.4;
+}
+textarea.journal::placeholder{color:var(--muted-2);}
+label.jq{display:block; font-size:12.5px; color:var(--muted); margin:10px 0 5px; font-weight:600;}
+
+.quote-card{
+  background:var(--panel-2); border:1px dashed var(--line); border-radius:12px; padding:14px 16px; margin-top:4px;
+}
+.quote-card .qlabel{font-size:10px; letter-spacing:.16em; color:var(--amber); text-transform:uppercase; font-weight:700; margin-bottom:6px;}
+.quote-card p{margin:0; font-style:italic; color:var(--chalk); font-size:14.5px; line-height:1.45;}
+.quote-card .qsub{margin-top:8px; font-size:12px; color:var(--muted); font-style:normal; line-height:1.4;}
+
+/* Days grid */
+.week-block{margin-bottom:20px;}
+.week-title{display:flex; align-items:baseline; gap:8px; margin:0 2px 8px;}
+.week-title .w-name{font-family:'Teko',sans-serif; font-weight:700; font-size:20px; color:var(--amber); text-transform:uppercase;}
+.week-title .w-range{font-size:12px; color:var(--muted); font-family:'JetBrains Mono',monospace;}
+.day-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(64px,1fr)); gap:8px;}
+.day-tile{
+  background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:8px 6px 7px;
+  display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; position:relative;
+}
+.day-tile.today{border-color:var(--amber);}
+.day-tile .ring{width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center;}
+.day-tile .ring .center{width:28px; height:28px; border-radius:50%; background:var(--panel); display:flex; align-items:center; justify-content:center; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--chalk);}
+.day-tile .dlabel{font-size:9.5px; color:var(--muted); text-align:center; line-height:1.2;}
+.day-tile.complete .dlabel{color:var(--amber);}
+
+/* Weekly scoreboards */
+.wk-score-row{display:flex; align-items:center; gap:10px; padding:7px 0; border-bottom:1px solid var(--line-soft);}
+.wk-score-row:last-child{border-bottom:none;}
+.wk-score-row .lbl{flex:0 0 108px; font-size:12.5px; color:var(--chalk);}
+.bar-track{flex:1; height:7px; background:var(--panel-2); border-radius:5px; overflow:hidden;}
+.bar-fill{height:100%; background:linear-gradient(90deg,var(--amber-dim),var(--amber)); border-radius:5px;}
+.wk-score-row .frac{flex:0 0 40px; text-align:right; font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--muted);}
+
+.subtab-row{display:flex; gap:6px; margin-bottom:14px; overflow-x:auto; padding-bottom:2px;}
+.subtab-row button{
+  flex:0 0 auto; background:var(--panel); border:1px solid var(--line); color:var(--muted);
+  padding:8px 14px; border-radius:20px; font-size:12.5px; font-weight:600; cursor:pointer; white-space:nowrap;
+}
+.subtab-row button.active{background:var(--amber); border-color:var(--amber); color:#1a1207;}
+
+textarea.review{
+  width:100%; background:var(--panel-2); border:1px solid var(--line); border-radius:10px;
+  color:var(--chalk); font-family:'Inter',sans-serif; font-size:14px; padding:10px 12px;
+  min-height:48px; resize:vertical; margin-bottom:10px;
+}
+
+/* Rules / library */
+.rule-item{display:flex; gap:12px; padding:12px 0; border-bottom:1px solid var(--line-soft);}
+.rule-item:last-child{border-bottom:none;}
+.rule-num{font-family:'Teko',sans-serif; font-weight:700; font-size:26px; color:var(--amber); flex:0 0 34px;}
+.rule-txt b{display:block; color:var(--chalk); font-size:14.5px; margin-bottom:2px;}
+.rule-txt span{color:var(--muted); font-size:13px; line-height:1.4;}
+
+table.standards{width:100%; border-collapse:collapse; font-size:13px;}
+table.standards td{padding:8px 6px; border-bottom:1px solid var(--line-soft); color:var(--chalk);}
+table.standards td:last-child{color:var(--amber); text-align:right; font-family:'JetBrains Mono',monospace; font-size:12px;}
+
+.safety-box{background:rgba(217,131,111,.08); border:1px solid rgba(217,131,111,.35); border-radius:12px; padding:13px 15px; margin-top:6px;}
+.safety-box .slabel{font-size:10px; letter-spacing:.14em; color:var(--soft-red); text-transform:uppercase; font-weight:700; margin-bottom:5px;}
+.safety-box p{margin:0; font-size:13px; color:var(--chalk); line-height:1.5;}
+
+details.lib{background:var(--panel-2); border:1px solid var(--line); border-radius:10px; margin-bottom:8px; overflow:hidden;}
+details.lib summary{padding:12px 14px; font-weight:600; font-size:14px; color:var(--chalk); cursor:pointer; list-style:none; display:flex; justify-content:space-between; align-items:center;}
+details.lib summary::-webkit-details-marker{display:none;}
+details.lib summary::after{content:'+'; color:var(--amber); font-size:18px;}
+details.lib[open] summary::after{content:'–';}
+details.lib .lib-body{padding:0 14px 14px; color:var(--muted); font-size:13px; line-height:1.5;}
+details.lib .lib-body div{margin-bottom:4px;}
+
+.reset-row{text-align:center; margin-top:6px;}
+.reset-row button{background:none; border:none; color:var(--muted-2); font-size:11.5px; text-decoration:underline; cursor:pointer; padding:8px;}
+
+.footer-note{text-align:center; color:var(--muted-2); font-size:11px; padding:18px 10px 4px; line-height:1.6;}
+
+.closing{
+  text-align:center; padding:22px 10px;
+}
+.closing .cl-eyebrow{font-size:10px; letter-spacing:.18em; color:var(--amber); text-transform:uppercase; font-weight:700; margin-bottom:8px;}
+.closing p{color:var(--muted); font-size:13.5px; line-height:1.6; max-width:440px; margin:0 auto 10px;}
+.closing .standard{font-family:'Teko',sans-serif; font-weight:700; font-size:22px; color:var(--chalk); margin-top:8px;}
+
+@media (min-width:640px){
+  main{padding-left:24px; padding-right:24px;}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="eyebrow">Volume 1 — Build the Athlete</div>
+  <div class="title-row">
+    <h1>THE BLUEPRINT</h1>
+    <div class="sub">Charlie McKae · Summer Offseason 2026</div>
+  </div>
+  <div class="scoreboard" id="scoreboard"></div>
+</header>
+
+<main id="app"></main>
+
+<nav class="tabs">
+  <button data-tab="today" class="active"><span class="ic">●</span>Today</button>
+  <button data-tab="days"><span class="ic">▦</span>All Days</button>
+  <button data-tab="weekly"><span class="ic">▲</span>Weekly</button>
+  <button data-tab="rules"><span class="ic">§</span>Rules</button>
+</nav>
+
+<script>
+/* ============ CONTENT DATA ============ */
+const NONNEG = ['Mobility routine','Arm care routine','Hydration target','Protein at meals','Sleep routine','One honest reflection'];
+const MOB    = ['90/90 hips 2x10','Hamstring floss 2x10','T-spine rotations 2x10','Ankle rocks 2x10','Hip flexor stretch 2x10','Adductor rock-backs 2x10'];
+const ARM    = ['Bands or tubing','Scap push-ups 2x10','Wall slides 2x10','External rotation 2x12','Reverse throws 2x10','Breathing reset'];
+const HIT_A  = ['10 one-hand top hand','10 one-hand bottom hand','15 walk-through swings','20 opposite-field swings','20 3/4 swings','30 game speed swings with intent'];
+const HIT_B  = ['Mirror load/checkpoint 3x10','Dry swings 4x10','Slow-motion swing path 3x6','Towel bat-path drill 3x8','Visualization: 10 quality at-bats','MLB hitter study: write 1 thing you noticed'];
+const ARM_FEEL_OPTIONS = [
+  {key:'up',   label:'Good',   rot:0},
+  {key:'so-so',label:'So-so',  rot:-90},
+  {key:'down', label:'Sore/Off', rot:180}
+];
+const THUMB_PATH = "M2 21h2a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2H2v11zM22 10.5a2.5 2.5 0 0 0-2.5-2.5h-5.34l.8-3.86a1 1 0 0 0-.24-.9L14 2 7.59 8.41A2 2 0 0 0 7 9.83V19a2 2 0 0 0 2 2h9a2 2 0 0 0 1.92-1.44l1.91-6.36c.11-.36.17-.75.17-1.15v-.55z";
+
+const ASSIGN = {
+  BOSS_SPEED:   {type:'speed',    name:'Boss Speed',    items:['Boss speed workout','Sprint with intent','Full rest between quality reps','Write one movement cue you learned']},
+  BOSS_STRENGTH:{type:'strength', name:'Boss Strength', items:['Boss strength workout','Ask one good question','Write one cue you learned','Recovery mobility after']},
+  STRENGTH_A:{type:'strength', name:'Strength A: Lower Body + Rotation', items:[
+    "Warm-up: 90/90 hip switches 2x8, world's greatest stretch 2x5/side, ankle rocks 2x10, band walks 2x12",
+    "Power: broad jumps 4x3, med ball rotational throw 4x5/side",
+    "Strength: goblet squat 3x8, push-up 3x8-12, split squat 3x8/side, 1-arm row 3x10/side",
+    "Core: dead bug 3x8/side, side plank 2x30 sec/side, suitcase carry 3x30 sec",
+    "Finish: 5-minute mobility reset"]},
+  STRENGTH_B:{type:'strength', name:'Strength B: Posterior Chain + Athletic Control', items:[
+    "Warm-up: jump rope or jog 4 min, hip airplanes 2x5/side, T-spine open books 2x8/side",
+    "Power: lateral bounds 4x4/side, med ball scoop toss 4x5/side",
+    "Strength: RDL 3x10, reverse lunge 3x8/side, pull-up or band pulldown 3x6-10, incline push-up 3x10",
+    "Core: Pallof press 3x10/side, bear crawl 3x20 yards",
+    "Finish: breathing reset and shoulder mobility"]},
+  STRENGTH_C:{type:'strength', name:'Strength C: Full Body + Stability', items:[
+    "Warm-up: dynamic movement 8 minutes",
+    "Power: pogo jumps 3x20, skater jumps 3x5/side",
+    "Strength: step-ups 3x8/side, single-leg RDL 3x8/side, shoulder taps 3x20, band row 3x12",
+    "Core: hollow hold 3x20 sec, farmer carry 4x30 sec",
+    "Finish: long stretch and hydration"]},
+  SPEED_A:{type:'speed', name:'Speed A: Acceleration', items:[
+    "Warm-up: A-skips, high knees, butt kicks, open/close gate, 2 build-up runs",
+    "Acceleration: 6x10 yards, full rest",
+    "First step: 4x5 yards from athletic stance",
+    "Flying speed: 4x20 yards at 90%",
+    "Deceleration: 4 stop-and-stick reps",
+    "Finish: walk 5 minutes"]},
+  SPEED_B:{type:'speed', name:'Speed B: Agility + Reaction', items:[
+    "Warm-up: dynamic movement 8 minutes",
+    "Lateral shuffle to sprint: 5 reps/side",
+    "5-10-5 pattern: 4 controlled reps",
+    "Hill or stair bounds: 5x8 seconds",
+    "Reaction sprint: 6 reps",
+    "Finish: hip flexor and calf stretch"]},
+  ROAD_STRENGTH:{type:'strength', name:'Road Strength', items:[
+    "Hotel warm-up: 20 jumping jacks, 10 lunges/side, 10 inchworms, 20 mountain climbers",
+    "Backpack squat 3x12","Push-up 3x8-15","Rear-foot elevated split squat on bed/chair 3x8/side",
+    "Towel row or backpack row 3x12","Plank shoulder taps 3x20","Suitcase/backpack carry 4x30 sec"]},
+  ROAD_SPEED:{type:'speed', name:'Road Speed', items:[
+    "Find hallway, grass, parking-lot edge, or safe sidewalk with parent approval",
+    "Dynamic warm-up 8 minutes","Marching A-skip 3x15 yards","Fast feet line hops 4x15 sec",
+    "Acceleration starts 6x8-10 yards","Lateral shuffle 4x10 yards/side","Walk and stretch 5 minutes"]}
+};
+
+const Q = {
+  future:"Future you is built by what current you repeats.",
+  boring:"The boring work is where the dangerous player is built.",
+  dangerous:"Do not train to be the best 13-year-old. Train to become a dangerous 17-year-old.",
+  systems:"Good players work when they feel like it. Great players build systems.",
+  growing:"Your body is growing. Your habits have to grow with it.",
+  standard:"Every rep either builds your standard or breaks it."
+};
+
+const DAYS = [
+ {date:'2026-07-03',label:'Build Routine',mission:'Own the day.',hit:'A',throwLbl:'Play catch',assign:null,q:Q.future},
+ {date:'2026-07-04',label:'Build Routine',mission:'Own the day.',hit:'A',throwLbl:'Play catch',assign:null,q:Q.boring},
+ {date:'2026-07-05',label:'Build Routine',mission:'Own the day.',hit:'A',throwLbl:'Play catch',assign:null,q:Q.dangerous},
+ {date:'2026-07-06',label:'Boss Speed Week',mission:'Bring energy to speed work. Move like a future varsity athlete.',hit:'A',throwLbl:'Play catch',assign:'BOSS_SPEED',q:Q.systems},
+ {date:'2026-07-07',label:'Boss Speed Week',mission:'Learn how to lift well. Technique before ego.',hit:'A',throwLbl:'Arm care only',assign:'BOSS_STRENGTH',q:Q.growing},
+ {date:'2026-07-08',label:'Boss Speed Week',mission:'Attack acceleration and compete with yourself.',hit:'A',throwLbl:'Play catch',assign:'BOSS_SPEED',q:Q.standard},
+ {date:'2026-07-09',label:'Boss Speed Week',mission:'Train strength with focus and control.',hit:'A',throwLbl:'Long toss',assign:'BOSS_STRENGTH',q:Q.future},
+ {date:'2026-07-10',label:'Independent Build Week',mission:'Prove you can train without being told.',hit:'A',throwLbl:'Play catch',assign:'STRENGTH_A',q:Q.boring},
+ {date:'2026-07-11',label:'Independent Build Week',mission:'Get faster while others just play games.',hit:'A',throwLbl:'Play catch',assign:'SPEED_A',q:Q.dangerous},
+ {date:'2026-07-12',label:'Build Routine',mission:'Recovery with intent. Long toss smooth, not max-effort.',hit:'A',throwLbl:'Long toss',assign:null,q:Q.systems},
+ {date:'2026-07-13',label:'Independent Build Week',mission:'Prove you can train without being told.',hit:'A',throwLbl:'Play catch',assign:'STRENGTH_B',q:Q.growing},
+ {date:'2026-07-14',label:'Build Routine',mission:'Command the baseball. Smooth, repeatable, under control.',hit:'A',throwLbl:'Bullpen',assign:null,q:Q.standard},
+ {date:'2026-07-15',label:'Independent Build Week',mission:'Prove you can train without being told.',hit:'A',throwLbl:'Play catch',assign:'STRENGTH_C',q:Q.future},
+ {date:'2026-07-16',label:'Independent Build Week',mission:'Get faster while others just play games.',hit:'A',throwLbl:'Play catch',assign:'SPEED_B',q:Q.boring},
+ {date:'2026-07-17',label:'Road Warrior',mission:'Your goals travel with you.',hit:'B',throwLbl:'Play catch',assign:null,q:Q.dangerous},
+ {date:'2026-07-18',label:'Road Warrior',mission:'Your goals travel with you.',hit:'B',throwLbl:'Play catch',assign:'ROAD_STRENGTH',q:Q.systems},
+ {date:'2026-07-19',label:'Road Warrior',mission:'Your goals travel with you.',hit:'B',throwLbl:'Long toss if space/safe; otherwise play catch + arm care',assign:null,q:Q.growing},
+ {date:'2026-07-20',label:'Road Warrior',mission:'Your goals travel with you.',hit:'B',throwLbl:'Play catch',assign:'ROAD_SPEED',q:Q.standard},
+ {date:'2026-07-21',label:'Road Warrior',mission:'Your goals travel with you.',hit:'B',throwLbl:'Play catch',assign:'ROAD_STRENGTH',q:Q.future},
+ {date:'2026-07-22',label:'Road Warrior',mission:'Your goals travel with you.',hit:'B',throwLbl:'Play catch',assign:null,q:Q.boring},
+ {date:'2026-07-23',label:'Road Warrior',mission:'Your goals travel with you.',hit:'B',throwLbl:'Long toss if space/safe; otherwise play catch + arm care',assign:null,q:Q.dangerous},
+ {date:'2026-07-24',label:'Road Warrior',mission:'Your goals travel with you.',hit:'B',throwLbl:'Play catch',assign:'ROAD_SPEED',q:Q.systems},
+ {date:'2026-07-25',label:'Road Warrior',mission:'Your goals travel with you.',hit:'B',throwLbl:'Play catch',assign:'ROAD_STRENGTH',q:Q.growing},
+ {date:'2026-07-26',label:'Road Warrior',mission:'Your goals travel with you.',hit:'B',throwLbl:'Bullpen substitute: towel mound routine + visualization',assign:null,q:Q.standard},
+ {date:'2026-07-27',label:'Road Warrior',mission:'Your goals travel with you.',hit:'B',throwLbl:'Play catch',assign:null,q:Q.future}
+];
+
+const WEEKS = [
+ {id:'week1',label:'Week 1',range:'July 3–5',mission:"Build the routine. Before you can train like a serious athlete, you have to become the kind of person who opens the manual and starts.",idx:[0,1,2]},
+ {id:'week2',label:'Week 2',range:'July 6–12',mission:"Stack structure. Use the Boss workouts to learn, then prove you can still own the pieces no one else sees.",idx:[3,4,5,6,7,8,9]},
+ {id:'week3',label:'Week 3',range:'July 13–16',mission:"Own your work. This is a short independent block before the road trip.",idx:[10,11,12,13]},
+ {id:'week4',label:'Road Warrior',range:'July 17–27',mission:"Most players stop training on vacation. You will keep the streak alive with smart, flexible work.",idx:[14,15,16,17,18,19,20,21,22,23,24]}
+];
+
+const REVIEW_ITEMS = ['I completed mobility','I completed arm care','I completed hitting/swing work','I completed throwing plan','I completed strength plan','I completed speed plan','I fueled well','I slept well','I handled hard moments','I stayed coachable'];
+
+const RULES = [
+ ['Never skip mobility.','You are growing fast. Mobility helps your new body move like an athlete instead of feeling stuck, tight, or awkward.'],
+ ['Protect your arm.','Your arm is not a toy. Daily arm care is how you earn the right to throw hard later.'],
+ ['Every swing has intent.','Mindless swings teach mindless movement. Every swing should have a target, a feel, or a purpose.'],
+ ['Sprint with urgency.','Speed is a skill. Future varsity players move differently.'],
+ ['Recovery is training.','Sleep, food, water, and stretching are not extras. They are part of getting better.'],
+ ['Win the boring days.','The boring days are where the serious players separate.']
+];
+
+const STANDARDS = [
+ ['Mobility','Daily'],['Arm Care','Daily'],['Hitting','Daily at home; swing drills on road'],
+ ['Catch Play','4 days/week'],['Long Toss','2 days/week'],['Bullpen','1 day/week through July 27'],
+ ['Strength','3 days/week'],['Speed','2 days/week'],['Mental Skills','3 days/week'],['Hydration + Sleep','Daily']
+];
+
+/* ============ STORAGE ============ */
+const STORE_KEY = 'charlie-blueprint-state-v1';
+let saveTimer = null;
+
+async function storageGet(key){
+  if (window.storage){
+    try { const r = await window.storage.get(key); return r ? r.value : null; } catch(e){ return null; }
+  }
+  try { return localStorage.getItem(key); } catch(e){ return null; }
+}
+async function storageSet(key, val){
+  if (window.storage){
+    try { await window.storage.set(key, val); return; } catch(e){ /* fall through */ }
+  }
+  try { localStorage.setItem(key, val); } catch(e){}
+}
+
+function defaultDayState(d){
+  return {
+    nonneg: NONNEG.map(()=>false),
+    mob: MOB.map(()=>false),
+    arm: ARM.map(()=>false),
+    hit: HIT_A.map(()=>false),
+    assign: d.assign ? ASSIGN[d.assign].items.map(()=>false) : [],
+    j1:'', j2:'',
+    armFeel: null,
+    throwLbl: d.throwLbl,
+    assignKey: d.assign
+  };
+}
+function defaultReviewState(){
+  return { checks: REVIEW_ITEMS.map(()=>false), win:'', hard:'', next:'' };
+}
+
+let STATE = { days:{}, reviews:{} };
+
+const THROW_OPTIONS = ['Play catch','Long toss','Bullpen','Arm care only',
+  'Long toss if space/safe; otherwise play catch + arm care',
+  'Bullpen substitute: towel mound routine + visualization'];
+
+function ensureState(){
+  DAYS.forEach(d=>{
+    if(!STATE.days[d.date]) STATE.days[d.date] = defaultDayState(d);
+    const s = STATE.days[d.date];
+    // migrate older saved states that predate editable assignments
+    if (s.throwLbl === undefined) s.throwLbl = d.throwLbl;
+    if (s.assignKey === undefined) s.assignKey = d.assign;
+    if (!Array.isArray(s.assign)) s.assign = s.assignKey ? ASSIGN[s.assignKey].items.map(()=>false) : [];
+    if (s.armFeel === undefined) s.armFeel = null;
+  });
+  WEEKS.forEach(w=>{ if(!STATE.reviews[w.id]) STATE.reviews[w.id] = defaultReviewState(); });
+}
+
+function queueSave(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(()=>{ storageSet(STORE_KEY, JSON.stringify(STATE)); }, 500);
+}
+
+/* ============ HELPERS ============ */
+function fmtDate(str){
+  const d = new Date(str+'T12:00:00');
+  return d.toLocaleDateString('en-US',{weekday:'long', month:'long', day:'numeric'});
+}
+function shortDate(str){
+  const d = new Date(str+'T12:00:00');
+  return d.toLocaleDateString('en-US',{month:'short', day:'numeric'});
+}
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function dayTotals(idx){
+  const d = DAYS[idx], s = STATE.days[d.date];
+  const arrs = [s.nonneg, s.mob, s.arm, s.hit, s.assign];
+  let done=0, total=0;
+  arrs.forEach(a=>{ done += a.filter(Boolean).length; total += a.length; });
+  total++; if (s.armFeel) done++;
+  if (s.j1.trim()) done++; total++;
+  if (s.j2.trim()) done++; total++;
+  return {done, total, pct: total? Math.round(done/total*100):0};
+}
+function dayComplete(idx){ const t = dayTotals(idx); return t.total>0 && t.done===t.total; }
+function ringGradient(pct){
+  return `conic-gradient(var(--amber) ${pct*3.6}deg, var(--line-soft) 0deg)`;
+}
+function overallStats(){
+  let complete=0;
+  DAYS.forEach((d,i)=>{ if(dayComplete(i)) complete++; });
+  let streak=0;
+  for(let i=DAYS.length-1;i>=0;i--){ if(dayComplete(i)) streak++; else break; }
+  const t = todayStr();
+  let dayIdx = DAYS.findIndex(d=>d.date===t);
+  return {complete, total:DAYS.length, streak, todayIdx: dayIdx};
+}
+
+/* week aggregate scoreboard */
+function weekAgg(week){
+  const idxs = week.idx;
+  const n = idxs.length;
+  let mob=0, arm=0, hitc=0, journ=0, sleep=0;
+  const isWeek1 = week.id === 'week1';
+  let catchTarget=isWeek1?1:4, catchDone=0, longTarget=isWeek1?1:2, longDone=0, bullTarget=1, bullDone=0;
+  let strengthTarget=3, strengthDone=0, speedTarget=2, speedDone=0;
+  idxs.forEach(i=>{
+    const d = DAYS[i], s = STATE.days[d.date];
+    if (s.mob.every(Boolean)) mob++;
+    if (s.arm.every(Boolean)) arm++;
+    if (s.hit.every(Boolean)) hitc++;
+    if (s.j1.trim() && s.j2.trim()) journ++;
+    if (s.nonneg[4]) sleep++;
+    if (s.throwLbl.startsWith('Play catch') && s.armFeel) catchDone++;
+    if (s.throwLbl.startsWith('Long toss') && s.armFeel) longDone++;
+    if (s.throwLbl.startsWith('Bullpen') && s.armFeel) bullDone++;
+    if (s.assignKey){
+      const a = ASSIGN[s.assignKey];
+      const complete = s.assign.length && s.assign.every(Boolean);
+      if (a.type==='strength' && complete) strengthDone++;
+      if (a.type==='speed' && complete) speedDone++;
+    }
+  });
+  return [
+    ['Mobility', mob, n], ['Arm Care', arm, n], ['Hitting/Swing', hitc, n],
+    ['Catch Play', catchDone, catchTarget], ['Long Toss', longDone, longTarget], ['Bullpen', bullDone, bullTarget],
+    ['Strength', strengthDone, strengthTarget], ['Speed', speedDone, speedTarget],
+    ['Journal', journ, 2], ['Sleep routine', sleep, n]
+  ];
+}
+
+/* ============ RENDER ============ */
+let TAB = 'today';
+let CUR_DAY = 0;
+let WEEKLY_SUB = 'scoreboard';
+let REVIEW_WEEK = 'week1';
+
+function renderScoreboard(){
+  const st = overallStats();
+  let dots = '';
+  DAYS.forEach((d,i)=>{
+    const cls = ['sb-dot'];
+    if (dayComplete(i)) cls.push('on');
+    if (i===st.todayIdx) cls.push('today');
+    dots += `<div class="${cls.join(' ')}"></div>`;
+  });
+  document.getElementById('scoreboard').innerHTML = `
+    <div class="sb-stat"><div class="num">${st.complete}/${st.total}</div><div class="lbl">Days Done</div></div>
+    <div class="sb-div"></div>
+    <div class="sb-stat"><div class="num">${st.streak}</div><div class="lbl">Streak</div></div>
+    <div class="sb-div"></div>
+    <div class="sb-dots">${dots}</div>
+  `;
+}
+
+function weekOf(dayIdx){ return WEEKS.find(w=>w.idx.includes(dayIdx)); }
+
+function checklistHTML(sectionTitle, items, stateArr, path, extra=''){
+  const done = stateArr.filter(Boolean).length;
+  let rows = items.map((label,i)=>`
+    <li class="check-item ${stateArr[i]?'done':''}" data-path="${path}" data-i="${i}">
+      <div class="box"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5L9.5 18L20 6.5" stroke="#1a1207" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="txt">${label}</span>
+    </li>`).join('');
+  return `<div class="card">
+    <div class="section-h"><h3>${sectionTitle}</h3><span class="frac mono">${done}/${items.length}</span></div>
+    ${extra}
+    <ul class="check-list">${rows}</ul>
+  </div>`;
+}
+
+function renderToday(){
+  ensureState();
+  const d = DAYS[CUR_DAY], s = STATE.days[d.date], wk = weekOf(CUR_DAY);
+  const t = dayTotals(CUR_DAY);
+
+  let html = `
+  <div class="day-nav">
+    <button class="arrow" id="prevDay" ${CUR_DAY===0?'disabled':''}>‹</button>
+    <div class="center">
+      <div class="wk-tag">${wk.label} · ${d.label}</div>
+      <div class="dow">${fmtDate(d.date)}</div>
+      <div class="datestr mono">Day ${CUR_DAY+1} of ${DAYS.length}</div>
+    </div>
+    <div class="ring-mini" style="background:${ringGradient(t.pct)}"><div class="in">${t.pct}%</div></div>
+    <button class="arrow" id="nextDay" ${CUR_DAY===DAYS.length-1?'disabled':''}>›</button>
+  </div>
+
+  <div class="mission-banner">
+    <div class="m-eyebrow">Today's Mission</div>
+    <p>${d.mission}</p>
+  </div>`;
+
+  html += checklistHTML('Non-Negotiables', NONNEG, s.nonneg, 'nonneg');
+  html += checklistHTML('Mobility', MOB, s.mob, 'mob');
+  html += checklistHTML('Arm Care', ARM, s.arm, 'arm');
+  html += checklistHTML('Hitting / Swing Work', d.hit==='A'?HIT_A:HIT_B, s.hit, 'hit');
+
+  const throwOptsHTML = THROW_OPTIONS.map(o=>`<option value="${o}" ${s.throwLbl===o?'selected':''}>${o}</option>`).join('');
+  const feelBtnsHTML = ARM_FEEL_OPTIONS.map(f=>`
+    <button class="feel-btn ${s.armFeel===f.key?'active':''}" data-feel="${f.key}">
+      <svg viewBox="0 0 24 24" style="transform:rotate(${f.rot}deg)"><path d="${THUMB_PATH}"/></svg>
+      <span class="flbl">${f.label}</span>
+    </button>`).join('');
+  html += `<div class="card">
+    <div class="section-h"><h3>Throwing</h3><span class="frac mono">${s.armFeel?'Logged':'—'}</span></div>
+    <div class="swap-row">
+      <span class="swap-lbl">Assignment</span>
+      <select class="swap-select" id="throwPicker">${throwOptsHTML}</select>
+    </div>
+    <label class="jq" style="margin-top:2px;">How did the arm feel?</label>
+    <div class="feel-row">${feelBtnsHTML}</div>
+  </div>`;
+
+  const assignGroupsHTML = `
+    <option value="" ${!s.assignKey?'selected':''}>None — rest from lifting/speed today</option>
+    <optgroup label="Strength">
+      ${['BOSS_STRENGTH','STRENGTH_A','STRENGTH_B','STRENGTH_C','ROAD_STRENGTH'].map(k=>`<option value="${k}" ${s.assignKey===k?'selected':''}>${ASSIGN[k].name}</option>`).join('')}
+    </optgroup>
+    <optgroup label="Speed">
+      ${['BOSS_SPEED','SPEED_A','SPEED_B','ROAD_SPEED'].map(k=>`<option value="${k}" ${s.assignKey===k?'selected':''}>${ASSIGN[k].name}</option>`).join('')}
+    </optgroup>`;
+  html += `<div class="card">
+    <div class="section-h"><h3>Strength / Speed</h3>${s.assignKey?`<span class="frac mono">${s.assign.filter(Boolean).length}/${s.assign.length}</span>`:''}</div>
+    <div class="swap-row">
+      <span class="swap-lbl">Today's workout</span>
+      <select class="swap-select" id="assignPicker">${assignGroupsHTML}</select>
+    </div>
+    ${s.assignKey ? `<ul class="check-list">${ASSIGN[s.assignKey].items.map((label,i)=>`
+      <li class="check-item ${s.assign[i]?'done':''}" data-path="assign" data-i="${i}">
+        <div class="box"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5L9.5 18L20 6.5" stroke="#1a1207" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <span class="txt">${label}</span>
+      </li>`).join('')}</ul>` : ''}
+  </div>`;
+
+  html += `<div class="card">
+    <div class="section-h"><h3>Journal</h3></div>
+    <label class="jq">What did I do today that helped future Charlie?</label>
+    <textarea class="journal" data-jkey="j1" placeholder="Write a sentence or two...">${s.j1}</textarea>
+    <label class="jq">What is one thing I can clean up tomorrow?</label>
+    <textarea class="journal" data-jkey="j2" placeholder="Be honest, even if it's short...">${s.j2}</textarea>
+  </div>
+
+  <div class="quote-card">
+    <div class="qlabel">Scout's Notebook</div>
+    <p>"${d.q}"</p>
+    <div class="qsub">Today I would be watching your pace, your body language, and whether your reps look intentional when nobody is grading you.</div>
+  </div>
+
+  <div class="reset-row"><button id="resetDay">Reset today's checklist</button></div>
+  `;
+
+  document.getElementById('app').innerHTML = html;
+
+  document.getElementById('prevDay').onclick = ()=>{ if(CUR_DAY>0){ CUR_DAY--; renderToday(); } };
+  document.getElementById('nextDay').onclick = ()=>{ if(CUR_DAY<DAYS.length-1){ CUR_DAY++; renderToday(); } };
+  document.getElementById('resetDay').onclick = ()=>{
+    if(confirm('Clear all checkmarks and journal notes for this day?')){
+      STATE.days[d.date] = defaultDayState(d);
+      queueSave(); renderToday(); renderScoreboard();
+    }
+  };
+  document.getElementById('throwPicker').onchange = (e)=>{
+    s.throwLbl = e.target.value;
+    queueSave(); renderToday(); renderScoreboard();
+  };
+  document.getElementById('assignPicker').onchange = (e)=>{
+    const key = e.target.value || null;
+    s.assignKey = key;
+    s.assign = key ? ASSIGN[key].items.map(()=>false) : [];
+    queueSave(); renderToday(); renderScoreboard();
+  };
+  document.querySelectorAll('.feel-btn').forEach(el=>{
+    el.onclick = ()=>{
+      const k = el.dataset.feel;
+      s.armFeel = (s.armFeel === k) ? null : k;
+      queueSave(); renderToday(); renderScoreboard();
+    };
+  });
+  document.querySelectorAll('.check-item').forEach(el=>{
+    el.onclick = ()=>{
+      const path = el.dataset.path, i = +el.dataset.i;
+      s[path][i] = !s[path][i];
+      queueSave(); renderToday(); renderScoreboard();
+    };
+  });
+  document.querySelectorAll('textarea.journal').forEach(el=>{
+    el.oninput = ()=>{ s[el.dataset.jkey] = el.value; queueSave(); };
+  });
+}
+
+function renderDaysGrid(){
+  ensureState();
+  const st = overallStats();
+  let html = '';
+  WEEKS.forEach(w=>{
+    html += `<div class="week-block">
+      <div class="week-title"><span class="w-name">${w.label}</span><span class="w-range mono">${w.range}</span></div>
+      <div class="day-grid">`;
+    w.idx.forEach(i=>{
+      const d = DAYS[i], t = dayTotals(i);
+      const isToday = i===st.todayIdx;
+      const complete = t.total>0 && t.done===t.total;
+      html += `<div class="day-tile ${isToday?'today':''} ${complete?'complete':''}" data-idx="${i}">
+        <div class="ring" style="background:${ringGradient(t.pct)}"><div class="center">${i+1}</div></div>
+        <div class="dlabel">${shortDate(d.date)}</div>
+      </div>`;
+    });
+    html += `</div></div>`;
+  });
+  document.getElementById('app').innerHTML = html;
+  document.querySelectorAll('.day-tile').forEach(el=>{
+    el.onclick = ()=>{ CUR_DAY = +el.dataset.idx; TAB='today'; setActiveTab(); renderApp(); };
+  });
+}
+
+function renderWeekly(){
+  ensureState();
+  let subtabs = `<div class="subtab-row">
+    <button data-sub="scoreboard" class="${WEEKLY_SUB==='scoreboard'?'active':''}">Scoreboards</button>
+    <button data-sub="review" class="${WEEKLY_SUB==='review'?'active':''}">Weekly Review</button>
+  </div>`;
+
+  let body = '';
+  if (WEEKLY_SUB === 'scoreboard'){
+    WEEKS.forEach(w=>{
+      const agg = weekAgg(w);
+      let rows = agg.map(([lbl,done,target])=>{
+        const pct = target? Math.min(100, Math.round(done/target*100)) : 0;
+        return `<div class="wk-score-row">
+          <div class="lbl">${lbl}</div>
+          <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+          <div class="frac">${done}/${target}</div>
+        </div>`;
+      }).join('');
+      body += `<div class="card">
+        <div class="section-h"><h3>${w.label}</h3><span class="frac mono">${w.range}</span></div>
+        <p style="color:var(--muted);font-size:12.5px;margin:-4px 0 10px;line-height:1.4;">${w.mission}</p>
+        ${rows}
+      </div>`;
+    });
+  } else {
+    let tabs = WEEKS.map(w=>`<button data-rw="${w.id}" class="${REVIEW_WEEK===w.id?'active':''}" style="margin-right:6px">${w.label}</button>`).join('');
+    const w = WEEKS.find(x=>x.id===REVIEW_WEEK);
+    const rs = STATE.reviews[w.id];
+    let checks = REVIEW_ITEMS.map((label,i)=>`
+      <li class="check-item ${rs.checks[i]?'done':''}" data-ri="${i}">
+        <div class="box"><svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5L9.5 18L20 6.5" stroke="#1a1207" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <span class="txt">${label}</span>
+      </li>`).join('');
+    body += `<div class="subtab-row">${tabs}</div>
+    <div class="card">
+      <div class="section-h"><h3>${w.label} Review</h3><span class="frac mono">${w.range}</span></div>
+      <ul class="check-list">${checks}</ul>
+    </div>
+    <div class="card">
+      <label class="jq">Biggest win</label>
+      <textarea class="review" data-rf="win" placeholder="What went right this week?">${rs.win}</textarea>
+      <label class="jq">Hardest part</label>
+      <textarea class="review" data-rf="hard" placeholder="What was tough?">${rs.hard}</textarea>
+      <label class="jq">Next week I will attack</label>
+      <textarea class="review" data-rf="next" placeholder="One or two things to focus on">${rs.next}</textarea>
+    </div>`;
+  }
+
+  document.getElementById('app').innerHTML = subtabs + body;
+
+  document.querySelectorAll('[data-sub]').forEach(el=>{
+    el.onclick = ()=>{ WEEKLY_SUB = el.dataset.sub; renderWeekly(); };
+  });
+  document.querySelectorAll('[data-rw]').forEach(el=>{
+    el.onclick = ()=>{ REVIEW_WEEK = el.dataset.rw; renderWeekly(); };
+  });
+  document.querySelectorAll('[data-ri]').forEach(el=>{
+    el.onclick = ()=>{
+      const i = +el.dataset.ri;
+      const rs = STATE.reviews[REVIEW_WEEK];
+      rs.checks[i] = !rs.checks[i];
+      queueSave(); renderWeekly();
+    };
+  });
+  document.querySelectorAll('textarea.review').forEach(el=>{
+    el.oninput = ()=>{ STATE.reviews[REVIEW_WEEK][el.dataset.rf] = el.value; queueSave(); };
+  });
+}
+
+function libSection(title, items){
+  return `<details class="lib"><summary>${title}</summary><div class="lib-body">${items.map(x=>`<div>• ${x}</div>`).join('')}</div></details>`;
+}
+
+function renderRules(){
+  let html = `<div class="card">
+    <div class="section-h"><h3>The Blueprint Rules</h3></div>
+    ${RULES.map((r,i)=>`<div class="rule-item"><div class="rule-num">${i+1}</div><div class="rule-txt"><b>${r[0]}</b><span>${r[1]}</span></div></div>`).join('')}
+  </div>
+
+  <div class="card">
+    <div class="section-h"><h3>Weekly Standards</h3></div>
+    <table class="standards">${STANDARDS.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</table>
+    <div class="safety-box">
+      <div class="slabel">Safety Standard</div>
+      <p>Lift with excellent technique. Stop if pain changes your movement. Throwing should build gradually and never chase max effort when the arm feels tired. When in doubt, ask a coach or parent.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-h"><h3>Workout Library</h3></div>
+    ${libSection('Strength A: Lower Body + Rotation', ASSIGN.STRENGTH_A.items)}
+    ${libSection('Strength B: Posterior Chain + Athletic Control', ASSIGN.STRENGTH_B.items)}
+    ${libSection('Strength C: Full Body + Stability', ASSIGN.STRENGTH_C.items)}
+    ${libSection('Speed A: Acceleration', ASSIGN.SPEED_A.items)}
+    ${libSection('Speed B: Agility + Reaction', ASSIGN.SPEED_B.items)}
+    ${libSection('Road Strength', ASSIGN.ROAD_STRENGTH.items)}
+    ${libSection('Road Speed', ASSIGN.ROAD_SPEED.items)}
+    ${libSection('No-Bat Hitting Substitute', HIT_B)}
+  </div>
+
+  <div class="closing">
+    <div class="cl-eyebrow">Closing Message</div>
+    <p>Volume 1 is not about proving you are already there. It is about proving you are willing to build. Every box you check is a vote for the player you want to become.</p>
+    <div class="standard">One rep. One workout. One day. One phase. Keep stacking.</div>
+  </div>
+
+  <div class="footer-note">Data is saved on this device/browser only.<br>Add this page to your Home Screen for one-tap access.</div>
+  `;
+  document.getElementById('app').innerHTML = html;
+}
+
+function setActiveTab(){
+  document.querySelectorAll('nav.tabs button').forEach(b=>{
+    b.classList.toggle('active', b.dataset.tab===TAB);
+  });
+}
+
+function renderApp(){
+  if (TAB==='today') renderToday();
+  else if (TAB==='days') renderDaysGrid();
+  else if (TAB==='weekly') renderWeekly();
+  else if (TAB==='rules') renderRules();
+  renderScoreboard();
+}
+
+document.querySelectorAll('nav.tabs button').forEach(b=>{
+  b.onclick = ()=>{ TAB = b.dataset.tab; setActiveTab(); renderApp(); };
+});
+
+/* ============ INIT ============ */
+async function init(){
+  const raw = await storageGet(STORE_KEY);
+  if (raw){
+    try { STATE = JSON.parse(raw); } catch(e){ STATE = {days:{}, reviews:{}}; }
+  }
+  ensureState();
+  const st = overallStats();
+  CUR_DAY = st.todayIdx >= 0 ? st.todayIdx : 0;
+  setActiveTab();
+  renderApp();
+}
+init();
+</script>
+</body>
+</html>
